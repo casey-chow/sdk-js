@@ -16,7 +16,7 @@ export interface IStorageAPI {
 // configuration merged with defaults
 export interface IConfigurationValues {
   url: string;
-  project: string;
+  project?: string;
   token?: string;
   localExp?: number;
   tokenExpirationTime?: number;
@@ -25,14 +25,14 @@ export interface IConfigurationValues {
 }
 
 export interface IConfiguration {
-  token: string;
+  token?: string;
   url: string;
-  project: string;
+  project?: string;
   localExp?: number;
-  tokenExpirationTime: number;
+  tokenExpirationTime?: number;
   persist: boolean;
-  mode: AuthModes;
-  dehydrate(): IConfigurationValues;
+  mode?: AuthModes;
+  dehydrate(): IConfigurationValues | undefined;
   deleteHydratedConfig();
   hydrate(config: IConfigurationValues);
   partialUpdate(config: Partial<IConfigurationValues>): void;
@@ -136,7 +136,7 @@ export class Configuration implements IConfiguration {
     return this.internalConfiguration.token;
   }
 
-  public set token(token: string) {
+  public set token(token: string | undefined) {
     this.partialUpdate({ token });
   }
 
@@ -144,7 +144,9 @@ export class Configuration implements IConfiguration {
     return this.internalConfiguration.tokenExpirationTime;
   }
 
-  public set tokenExpirationTime(tokenExpirationTime: number) {
+  public set tokenExpirationTime(tokenExpirationTime: number | undefined) {
+    if (typeof tokenExpirationTime === "undefined") return;
+
     // TODO: Optionally re-compute the localExp property for the auto-refresh
     this.partialUpdate({
       tokenExpirationTime: tokenExpirationTime * 60000,
@@ -159,11 +161,11 @@ export class Configuration implements IConfiguration {
     this.partialUpdate({ url });
   }
 
-  public get project(): string {
+  public get project(): string | undefined {
     return this.internalConfiguration.project;
   }
 
-  public set project(project: string) {
+  public set project(project: string | undefined) {
     this.partialUpdate({
       project: project,
     });
@@ -185,11 +187,11 @@ export class Configuration implements IConfiguration {
     this.internalConfiguration.persist = persist;
   }
 
-  public get mode(): AuthModes {
+  public get mode(): AuthModes | undefined {
     return this.internalConfiguration.mode;
   }
 
-  public set mode(mode: AuthModes) {
+  public set mode(mode: AuthModes | undefined ) {
     this.internalConfiguration.mode = mode;
   }
 
@@ -273,7 +275,7 @@ export class Configuration implements IConfiguration {
     const nativeValue = storage.getItem(STORAGE_KEY);
 
     if (!nativeValue) {
-      return;
+      return {} as IConfigurationValues;
     }
 
     try {

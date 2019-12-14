@@ -11,7 +11,8 @@
       "es2015"
     ],
     "rootDir": "src",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "strictNullChecks": true
   },
   "exclude": [
     "test",
